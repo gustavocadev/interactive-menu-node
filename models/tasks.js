@@ -1,95 +1,89 @@
-const Task = require("./task");
-require("colors");
+import Task from './task.js';
+import 'colors';
 
 class Tasks {
-    _list = {};
+  _list = {};
 
-    get listArray() {
-        const list = [];
-        Object.keys(this._list).forEach((id) => {
-            const task = this._list[id];
-            list.push(task);
-        });
-        return list;
+  get listArray() {
+    const list = [];
+    Object.keys(this._list).forEach((id) => {
+      const task = this._list[id];
+      list.push(task);
+    });
+    return list;
+  }
+
+  constructor() {
+    this._list = {};
+  }
+
+  deleteTask(id = '') {
+    if (this._list[id]) {
+      delete this._list[id];
     }
+  }
 
-    constructor() {
-        this._list = {};
-    }
+  loadTasksFromArray(tasks = []) {
+    tasks.forEach((task) => {
+      this._list[task.id] = task;
+    });
+  }
 
-    deleteTask(id = "") {
-        if (this._list[id]) {
-            delete this._list[id];
-        }
-    }
+  createTask(description = '') {
+    const task = new Task(description);
 
-    loadTasksFromArray(tasks = []) {
-        tasks.forEach((task) => {
-            this._list[task.id] = task;
-        });
-    }
+    this._list[task.id] = task;
+  }
 
-    createTask(description = "") {
-        const task = new Task(description);
+  completeList() {
+    // 1. Alma :: Completada
+    this.listArray.forEach((task, idx) => {
+      console.log(
+        `${`${idx + 1}`.green} ${task.description} :: ${
+          task.createdAt !== null ? 'Completado'.green : 'Pediente'.red
+        }`
+      );
+    });
+  }
 
-        this._list[task.id] = task;
-    }
+  listPendingCompleted(completed = true) {
+    if (!completed) {
+      const arrayOfPendingTasks = this.listArray.filter(
+        (task) => task.createdAt === null
+      );
 
-    completeList() {
-        // 1. Alma :: Completada
-        this.listArray.forEach((task, idx) => {
-            console.log(
-                `${`${idx + 1}`.green} ${task.description} :: ${
-                    task.createdAt !== null
-                        ? "Completado".green
-                        : "Pediente".red
-                }`
-            );
-        });
-    }
-
-    listPendingCompleted(completed = true) {
-        if (!completed) {
-            const arrayOfPendingTasks = this.listArray.filter(
-                (task) => task.createdAt === null
-            );
-
-            arrayOfPendingTasks.forEach((task, idx) => {
-                console.log(
-                    `${`${idx + 1}`.green} ${task.description} :: ${
-                        "Pendiente".red
-                    }`
-                );
-            });
-            return;
-        }
-        const arrayOfCompletedTasks = this.listArray.filter(
-            (task) => task.createdAt !== null
+      arrayOfPendingTasks.forEach((task, idx) => {
+        console.log(
+          `${`${idx + 1}`.green} ${task.description} :: ${'Pendiente'.red}`
         );
-
-        arrayOfCompletedTasks.forEach((task, idx) => {
-            console.log(
-                `${`${idx + 1}`.green} ${task.description} :: ${
-                    "Completado".green
-                }`
-            );
-        });
+      });
+      return;
     }
+    const arrayOfCompletedTasks = this.listArray.filter(
+      (task) => task.createdAt !== null
+    );
 
-    toggleCompleted(ids = []) {
-        ids.forEach((id) => {
-            const task = this._list[id];
-            if (!task.createdAt) {
-                task.createdAt = new Date().toISOString();
-            }
-        });
+    arrayOfCompletedTasks.forEach((task, idx) => {
+      console.log(
+        `${`${idx + 1}`.green} ${task.description} :: ${'Completado'.green}`
+      );
+    });
+  }
 
-        this.listArray.forEach((task) => {
-            if (!ids.includes(task.id)) {
-                this._list[task.id].createdAt = null;
-            }
-        });
-    }
+  toggleCompleted(ids = []) {
+    ids.forEach((id) => {
+      const task = this._list[id];
+      if (!task.createdAt) {
+        task.createdAt = new Date().toISOString();
+      }
+    });
+
+    this.listArray.forEach((task) => {
+      if (!ids.includes(task.id)) {
+        this._list[task.id].createdAt = null;
+      }
+    });
+  }
 }
 
-module.exports = Tasks;
+export default Tasks;
